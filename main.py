@@ -3,7 +3,6 @@ import time
 import json
 import uvicorn
 import fastapi
-import colorama
 import aiosqlite
 
 # Local imports
