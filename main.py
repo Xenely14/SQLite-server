@@ -28,7 +28,7 @@ async def startup() -> None:
     """Event handler, starts every time with script startup."""
 
     # await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Started database service")
-    await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Database is ON and accessible on route %lwhite`{config["database"]["route"]}`")
+    await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Database is ON and accessible on route %lwhite`{config['database']['route']}`")
     await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Service is avilabe on %lwhitehttp://{config['database']['host']}:{config['database']['port']}")
 
     # If SQL starup script wasn't found

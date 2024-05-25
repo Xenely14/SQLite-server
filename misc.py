@@ -1,6 +1,6 @@
+import toml
 import typing
 import asyncio
-import tomllib
 import colorama
 import datetime
 import aiosqlite
@@ -40,8 +40,8 @@ def read_toml_config(filename: str) -> dict[str, typing.Any]:
     if not filename.endswith(".toml"):
         raise Exception("Config is have to be `toml` format")
 
-    with open(filename, "rb") as file:
-        config = tomllib.load(file)
+    with open(filename, "r") as file:
+        config = toml.loads(file.read())
 
     return config
 
