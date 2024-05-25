@@ -37,9 +37,11 @@ log_formatations_map = {
 def read_toml_config(filename: str) -> dict[str, typing.Any]:
     """Reads TOML config file."""
 
+    # If config format is invalid
     if not filename.endswith(".toml"):
         raise Exception("Config is have to be `toml` format")
 
+    # Reading config file content
     with open(filename, "r") as file:
         config = toml.loads(file.read())
 
