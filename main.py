@@ -3,7 +3,6 @@ import time
 import json
 import uvicorn
 import fastapi
-import datetime
 import colorama
 import aiosqlite
 
@@ -23,30 +22,18 @@ fore = colorama.Fore
 
 
 # ==-----------------------------------------------------------------------------== #
-# Middleware                                                                        #
-# ==-----------------------------------------------------------------------------== #
-@application.middleware("http")
-async def log_middleware(request: fastapi.Request, next: typing.Coroutine) -> fastapi.Response:
-
-    # If route are not regisered
-    if request.url.path not in [item.path for item in application.routes]:
-        return
-
-    return await next(request)
-
-
-# ==-----------------------------------------------------------------------------== #
 # Event handlers                                                                    #
 # ==-----------------------------------------------------------------------------== #
 async def startup() -> None:
     """Event handler, starts every time with script startup."""
 
-    print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.GREEN}INFO{fore.RESET}:{' ' * 2}Started database service")
-    print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.GREEN}INFO{fore.RESET}:{' ' * 2}Database is ON and accessible on route {fore.LIGHTWHITE_EX}`{config["database"]["route"]}`{fore.RESET}")
+    # await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Started database service")
+    await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Database is ON and accessible on route %lwhite`{config["database"]["route"]}`")
+    await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}Service is avilabe on %lwhitehttp://{config['database']['host']}:{config['database']['port']}")
 
     # If SQL starup script wasn't found
     if not os.path.exists("startup.sql"):
-        print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.YELLOW}WARN{fore.RESET}:{' ' * 2}SQL script `startup.sql` not found. Create it to execute SQL script on startup")
+        await log(rf"%magenta[%now] %yellowWARN%reset:{' ' * 2}SQL script `startup.sql` not found. Create it to execute SQL script on startup")
 
     else:
 
@@ -74,7 +61,7 @@ async def execute_sql_handler(request: fastapi.Request) -> fastapi.Response:
 
     # If allowed IP list is not empty and request IP is not allowed
     if config["database"]["allowed_ips"] and request.client.host not in config["database"]["allowed_ips"]:
-        print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, IP not allowed")
+        await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %greenOK")
         return {"status": "Error", "detail": ["Your IP are not contains in whitelist"]}
 
     try:
@@ -97,12 +84,12 @@ async def execute_sql_handler(request: fastapi.Request) -> fastapi.Response:
 
         # Params validation
         if validation_errors := await validate_params(body, required_params, required_params_limitations):
-            print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, validation failed")
+            await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %redValidation failed")
             return {"status": "Error", "detail": validation_errors}
 
         # If password is required and password is invalid
         if "password" in required_params and body["password"] not in config["database"]["allowed_passwords"]:
-            print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, invalid password {fore.LIGHTWHITE_EX}`{body['password']}{fore.RESET}`")
+            await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %redInvalid password")
             return {"status": "Error", "detail": ["Invalid password"]}
 
         # Executing SQL query
@@ -128,7 +115,7 @@ async def execute_sql_handler(request: fastapi.Request) -> fastapi.Response:
                 stop_time = time.perf_counter()
                 execution_time = f"{stop_time - start_time:.7f}"
 
-                print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.GREEN}INFO{fore.RESET}:{' ' * 2}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} accessed database successfully")
+                await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %greenOK")
                 return {"status": "OK", "execution_time_secs": execution_time} | ({"columns": description, "data": data} if description else dict())
 
             await database.executescript(body["query"])
@@ -137,19 +124,19 @@ async def execute_sql_handler(request: fastapi.Request) -> fastapi.Response:
             stop_time = time.perf_counter()
             execution_time = f"{stop_time - start_time:.7f}"
 
-            print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.GREEN}INFO{fore.RESET}:{' ' * 2}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} accessed database successfully`")
+            await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %greenOK")
             return {"status": "OK", "execution_time_secs": execution_time}
 
     except json.decoder.JSONDecodeError:
-        print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, JSON parse error in body")
+        await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %redBody parse exception")
         return {"status": "Error", "detail": ["Expected JSON in request body"]}
 
     except aiosqlite.Error as error:
-        print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, SQLite error")
+        await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %redSQLite exception")
         return {"status": "Error", "detail": ["SQLite error: %s" % error]}
 
     except Exception as error:
-        print(f"{fore.LIGHTMAGENTA_EX}[{datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}] {fore.RED}ERROR{fore.RESET}:{' ' * 1}Client {fore.LIGHTWHITE_EX}{request.client.host}:{request.client.port}{fore.RESET} rejected, unexpected exception occurred")
+        await log(rf"%magenta[%now] %greenINFO%reset:{' ' * 2}{request.client.host}:{request.client.port} - %lwhite'Database accessed' %redInvalid exception")
         return {"status": "Error", "detail": ["Unexpected exception occurred: %s" % error]}
 
 
