@@ -1,0 +1,5 @@
+exrex
+fastapi
+uvicorn
+colorama
+aiosqlite
