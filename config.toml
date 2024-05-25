@@ -1,0 +1,10 @@
+[database]
+
+# Database connections settings
+route = "/database"
+host = "127.0.0.1"
+port = 7500
+
+# Database security settings
+allowed_passwords = []
+allowed_ips = []
