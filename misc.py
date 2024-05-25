@@ -7,7 +7,7 @@ import aiosqlite
 
 # Global and static variables, constants
 log_formatations_map = {
-    r"%now": datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"),
+    r"%now": lambda: datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"),
 
     r"%lred": colorama.Fore.LIGHTRED_EX,
     r"%lgreen": colorama.Fore.GREEN,
@@ -55,7 +55,14 @@ async def log(message: str, autoreset: bool = True) -> None:
     finally_message = message
     for formatation in log_formatations_map:
 
-        finally_message = finally_message.replace(formatation, log_formatations_map[formatation])
+        # If formatation is a callable object
+        if callable(log_formatations_map[formatation]):
+            finally_message = finally_message.replace(formatation, log_formatations_map[formatation]())
+
+        # If formatation is a predefined value
+        else:
+            finally_message = finally_message.replace(formatation, log_formatations_map[formatation])
+
         await asyncio.sleep(0)
 
     if autoreset:
