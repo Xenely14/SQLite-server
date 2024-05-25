@@ -18,8 +18,6 @@ DATABASE_PATH = "database.db"
 application = fastapi.FastAPI(docs_url=None)
 config = read_toml_config("config.toml")
 
-fore = colorama.Fore
-
 
 # ==-----------------------------------------------------------------------------== #
 # Event handlers                                                                    #
