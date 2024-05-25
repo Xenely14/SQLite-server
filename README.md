@@ -132,6 +132,9 @@ print("String md5:", string_hash)
 print("Lowered string:", lowered_string)
 print("SHA256 function documentation:", function_documentation)
 ```
+After executing of this script you will see this: 
+![Alt Image](./github_assets/user_defined_functions.png)
+
 > [!Tip]  
 > You can also use user defined function in `startup.sql` script.</br>
 > It's can be useful in triggers.
