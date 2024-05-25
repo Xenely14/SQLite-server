@@ -48,8 +48,6 @@ Here is a Python script that adds user to database, if startup SQL script from e
 import requests
 import json
 
-# NOTE: As i said earlier - password param are not required if `allowed_passwords` list is empty at config
-
 # URL to database route
 DATABASE_URL = "http://127.0.0.1:7500/database"
 
@@ -98,6 +96,8 @@ Functions list will be increasing with a repository updates.</br>
 Example of usage some of the functions:
 ```py
 import requests
+
+# NOTE: As i said earlier - password param are not required if `allowed_passwords` list is empty at config
 
 # URL to database route
 DATABASE_URL = "http://127.0.0.1:7500/database"
