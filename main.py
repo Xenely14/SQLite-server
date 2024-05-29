@@ -12,10 +12,10 @@ from misc import *
 from validation import *
 
 # Global and static variables, constants
-DATABASE_PATH = "database.db"
-
 application = fastapi.FastAPI(docs_url=None)
 config = read_toml_config("config.toml")
+
+database_path = config["database"]["file_path"]
 
 
 # ==-----------------------------------------------------------------------------== #
@@ -34,7 +34,8 @@ async def startup() -> None:
 
     else:
 
-        async with aiosqlite.connect(DATABASE_PATH) as database:
+        # Executing SQL query
+        async with aiosqlite.connect(database_path) as database:
 
             # Registarting SQL function
             await registrate_sqlite_functions(database, *sqlfunctions.sql_functions)
@@ -44,9 +45,14 @@ async def startup() -> None:
             await database.commit()
 
             # Executing startup SQL script
-            with open("startup.sql", "r", encoding="utf-8") as file:
-                await database.executescript(file.read())
-                await database.commit()
+            try:
+
+                with open("startup.sql", "r", encoding="utf-8") as file:
+                    await database.executescript(file.read())
+                    await database.commit()
+
+            except Exception:
+                await log(rf"%magenta[%now] %redERROR%reset:{' '}Error while executing startup SQL script. Fix it and and start the script again")
 
 
 # ==-----------------------------------------------------------------------------== #
@@ -90,7 +96,7 @@ async def execute_sql_handler(request: fastapi.Request) -> fastapi.Response:
             return {"status": "Error", "detail": ["Invalid password"]}
 
         # Executing SQL query
-        async with aiosqlite.connect(DATABASE_PATH) as database:
+        async with aiosqlite.connect(database_path) as database:
 
             # Registarting SQL function
             await registrate_sqlite_functions(database, *sqlfunctions.sql_functions)
