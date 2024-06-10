@@ -2,7 +2,7 @@
 Async HTTP server for SQLite using [aiosqlite](https://pypi.org/project/aiosqlite/) and [FastAPI](https://fastapi.tiangolo.com/).
 
 ## Details
-**SQLite-server** it's a project to host SQLite database as an external web service using HTTP and websockets (in future).</br>
+**SQLite-server** is a project to host SQLite database as an external web service using HTTP and websockets (in future).</br>
 Using Python and FastAPI provides low backend latency and using of user defined function in SQL syntax.
 
 You can define your own functions by adding it into `sqlfunctions.py` file.
