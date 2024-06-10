@@ -85,7 +85,7 @@ After executing of this script you will see this:
 > You can't retrieve data from queries flaged with `single`, use it only for executing a lot of code or transactions.
 
 #### User defined functions
-`sqlfunction.py` contains some basic function that accessible directly from SQL syntax to make it easier.</br>
+`sqlfunction.py` contains some basic function accessible directly from SQL syntax to make it easier.
 Here is categories of functions that file contains:
 - Cryptographic functions
 - String functions
